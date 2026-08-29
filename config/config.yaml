@@ -1,0 +1,110 @@
+project:
+  seed: 2026
+  species: human
+  input_mode: synthetic  # synthetic | 10x_directory | rds
+  input_path: data/raw
+  sample_sheet: data/sample_metadata.csv
+  output_dir: results
+
+synthetic:
+  n_genes: 800
+  cells_per_sample: 120
+  sample_ids: [demo_A, demo_B]
+
+qc:
+  min_cells_per_gene: 3
+  min_features: 100
+  max_features: 5000
+  min_counts: 200
+  max_counts: 30000
+  max_percent_mt: 25
+
+preprocessing:
+  method: LogNormalize  # LogNormalize | SCTransform
+  scale_factor: 10000
+  variable_features: 2000
+  regress_variables: [percent.mt]
+
+integration:
+  method: none  # harmony | seurat_cca | none
+  batch_variable: sample_id
+  n_pcs: 30
+  dimensions: 20
+  resolution: 0.5
+  umap_min_dist: 0.3
+
+annotation:
+  level1_column: cell_type_level1
+  level2_column: cell_type_level2
+  markers:
+    Epithelial: [EPCAM, KRT8, KRT18, KRT19]
+    T_NK: [CD3D, CD3E, TRAC, NKG7, GNLY]
+    B: [CD79A, MS4A1, CD37, CD74]
+    Myeloid: [LYZ, LST1, TYROBP, FCER1G]
+    Fibroblast: [COL1A1, COL1A2, DCN, COL3A1]
+    Endothelial: [PECAM1, VWF, EMCN, KDR]
+  level2_markers:
+    CD4_T: [IL7R, LTB, MALAT1]
+    CD8_T: [CD8A, CD8B, CCL5]
+    NK: [NKG7, GNLY, KLRD1]
+    Plasma_B: [MZB1, JCHAIN, SDC1]
+    Macrophage: [C1QA, C1QB, APOE]
+    Dendritic: [FCER1A, CD1C, CLEC10A]
+
+malignancy:
+  epithelial_label: Epithelial
+  reference_cell_types: [T_NK, B, Myeloid, Fibroblast, Endothelial]
+  candidate_marker_sets:
+    proliferation: [MKI67, TOP2A, UBE2C]
+    epithelial_stress: [KRT17, KRT19, EPCAM]
+  cnv_method: none  # none | infercnv | copykat
+  cnv_result_path: null
+
+differential_expression:
+  group_by: cell_type_level1
+  ident_1: null
+  ident_2: null
+  test_use: wilcox
+  min_pct: 0.1
+  logfc_threshold: 0.25
+  adjusted_p_cutoff: 0.05
+
+pathway:
+  organism: Homo sapiens
+  msigdb_category: H
+  min_size: 10
+  max_size: 500
+  nperm_simple: 1000
+  score_method: AddModuleScore  # AddModuleScore | UCell
+
+communication:
+  enabled: false
+  group_by: cell_type_level2
+  database: Secreted Signaling
+  min_cells: 10
+
+trajectory:
+  enabled: false
+  subset_column: cell_type_level1
+  subset_values: [Epithelial]
+  cluster_column: seurat_clusters
+  start_cluster: null
+  dynamic_genes: [EPCAM, KRT19, MKI67]
+  lineage_weight_threshold: 0.5
+
+tf_activity:
+  enabled: false
+  organism: human
+  network_top: 500
+  min_n: 5
+  group_by: cell_type_level1
+  confidence_levels: [A, B, C]
+  top_tfs_per_group: 15
+
+plotting:
+  base_family: Arial
+  base_size: 8
+  width_mm: 120
+  height_mm: 90
+  dpi: 600
+  point_size: 0.35

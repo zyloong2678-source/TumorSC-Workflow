@@ -1,0 +1,4 @@
+sample_id,path,condition,batch
+demo_A,data/raw/demo_A,synthetic,A
+demo_B,data/raw/demo_B,synthetic,B
+
